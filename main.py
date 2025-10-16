@@ -129,6 +129,10 @@ def load_model(local_folder=LOCAL_MODEL_FOLDER):
 
 @app.on_event("startup")
 async def startup_event():
+    # Log the port we're using
+    port = os.environ.get("PORT", "8000")
+    logger.info(f"Starting app on port {port}")
+    
     # Attempt to warm-load the model if small environment permits; swallow errors to keep server up
     try:
         load_model()

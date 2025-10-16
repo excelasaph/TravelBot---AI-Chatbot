@@ -12,3 +12,4 @@ bert-score
 safetensors
 fastapi
 uvicorn[standard]
+gunicorn>=21.2.0
