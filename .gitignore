@@ -12,11 +12,11 @@ env/
 .ipynb_checkpoints/
 
 # Model artifacts and weights 
-fine_tuned_t5_travel_geography/
+# fine_tuned_t5_travel_geography/
 *.safetensors
-*.pt
-*.ckpt
-*.bin
+# *.pt
+# *.ckpt
+# *.bin
 
 # IDE/editor directories
 .vscode/

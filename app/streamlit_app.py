@@ -16,6 +16,14 @@ st.set_page_config(page_title="TravelBot Demo", page_icon=":airplane:", layout="
 
 st.title("TravelBot: Travel & Cultural Routes — Demo")
 
+# Remote model server (recommended for Spaces). If provided in Secrets as MODEL_SERVER_URL,
+# the app will call the external server and avoid loading large model files inside the Space.
+MODEL_SERVER_URL = None
+try:
+    MODEL_SERVER_URL = st.secrets.get("MODEL_SERVER_URL")
+except Exception:
+    MODEL_SERVER_URL = os.environ.get("MODEL_SERVER_URL")
+
 MODEL_ID = st.sidebar.text_input("Hugging Face model repo (user/model)", value="excelasaph/fine_tuned_t5_travel_geography")
 use_recommended = st.sidebar.checkbox("Use recommended generation settings", True)
 # Add a beams control (safe, non-disruptive)
@@ -27,11 +35,31 @@ ood_threshold = st.sidebar.slider("OOD length threshold (words)", 5, 60, 20)
 
 @st.cache_resource
 def load_model(model_id, local=False):
-    # Use the tokenizer/model classes imported above. If transformers exposes Auto* classes
+    # Use the tokenizer/model classes imported above. If transformers exposes Auto* names
     # this will behave as before; otherwise we use the T5-specific classes aliased above.
     tokenizer = AutoTokenizer.from_pretrained(model_id, local_files_only=local)
     model = AutoModelForSeq2SeqLM.from_pretrained(model_id, local_files_only=local)
     return tokenizer, model
+
+
+def generate_via_server(prompt, max_length=256, num_beams=1):
+    """Call remote model server (POST /generate) and return generated_text or raise."""
+    import requests
+    if not MODEL_SERVER_URL:
+        raise RuntimeError("MODEL_SERVER_URL is not configured")
+    payload = {"inputs": prompt, "max_length": max_length, "num_beams": num_beams}
+    headers = {}
+    # Optional: support an API key sent via secrets
+    try:
+        api_key = st.secrets.get("MODEL_SERVER_API_KEY")
+    except Exception:
+        api_key = os.environ.get("MODEL_SERVER_API_KEY")
+    if api_key:
+        headers["Authorization"] = f"Bearer {api_key}"
+    r = requests.post(MODEL_SERVER_URL.rstrip('/') + "/generate", json=payload, headers=headers, timeout=60)
+    r.raise_for_status()
+    data = r.json()
+    return data.get("generated_text", "")
 
 
 ### Chat history helpers (centralized, safe)

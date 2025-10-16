@@ -10,3 +10,5 @@ matplotlib
 rouge-score
 bert-score
 safetensors
+fastapi
+uvicorn[standard]
