@@ -82,7 +82,13 @@ def load_model(local_folder=LOCAL_MODEL_FOLDER):
     try:
         if os.path.isdir(local_folder):
             logger.info("Loading model from local folder: %s", local_folder)
-            tokenizer = AutoTokenizer.from_pretrained(local_folder, local_files_only=True)
+            try:
+                # Try with legacy=True to silence 'add_prefix_space' warning
+                tokenizer = AutoTokenizer.from_pretrained(local_folder, local_files_only=True, legacy=True)
+            except Exception:
+                # Fall back to default loading if legacy flag not supported
+                tokenizer = AutoTokenizer.from_pretrained(local_folder, local_files_only=True)
+                
             model = AutoModelForSeq2SeqLM.from_pretrained(local_folder, local_files_only=True)
             _tokenizer, _model, _model_source = tokenizer, model, 'local-folder'
             return tokenizer, model, 'local-folder', local_folder
@@ -94,7 +100,11 @@ def load_model(local_folder=LOCAL_MODEL_FOLDER):
         # Try to load using the folder name as repo id (if user configured to pull from hub)
         repo_id = os.path.basename(local_folder)
         logger.info("Attempting to load model via repo id: %s", repo_id)
-        tokenizer = AutoTokenizer.from_pretrained(repo_id, local_files_only=True)
+        try:
+            tokenizer = AutoTokenizer.from_pretrained(repo_id, local_files_only=True, legacy=True)
+        except Exception:
+            tokenizer = AutoTokenizer.from_pretrained(repo_id, local_files_only=True)
+            
         model = AutoModelForSeq2SeqLM.from_pretrained(repo_id, local_files_only=True)
         _tokenizer, _model, _model_source = tokenizer, model, 'hub-cache'
         return tokenizer, model, 'hub-cache', None
@@ -104,7 +114,11 @@ def load_model(local_folder=LOCAL_MODEL_FOLDER):
     # Last resort: allow network download if environment has credentials/permissions
     try:
         repo_id = os.path.basename(local_folder)
-        tokenizer = AutoTokenizer.from_pretrained(repo_id)
+        try:
+            tokenizer = AutoTokenizer.from_pretrained(repo_id, legacy=True)
+        except Exception:
+            tokenizer = AutoTokenizer.from_pretrained(repo_id)
+            
         model = AutoModelForSeq2SeqLM.from_pretrained(repo_id)
         _tokenizer, _model, _model_source = tokenizer, model, 'hub'
         return tokenizer, model, 'hub', None

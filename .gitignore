@@ -21,21 +21,8 @@ env/
 # IDE/editor directories
 .vscode/
 
-# Archive/legacy folders
-hf_space_demo/
-# Translations
-*.mo
-*.pot
-
 # pyenv
 .python-version
-
-
-
-
-
-
-
 
 # Streamlit secrets
 app/.streamlit/secrets.toml

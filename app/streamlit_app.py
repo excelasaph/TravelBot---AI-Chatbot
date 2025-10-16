@@ -1,6 +1,8 @@
 import streamlit as st
 import os
 import json
+import urllib.parse
+import random
 from datetime import datetime
 try:
     # Preferred import when available
@@ -37,7 +39,16 @@ ood_threshold = st.sidebar.slider("OOD length threshold (words)", 5, 60, 20)
 def load_model(model_id, local=False):
     # Use the tokenizer/model classes imported above. If transformers exposes Auto* names
     # this will behave as before; otherwise we use the T5-specific classes aliased above.
-    tokenizer = AutoTokenizer.from_pretrained(model_id, local_files_only=local)
+    
+    # Add legacy=True to address the add_prefix_space warning for T5 tokenizer
+    # and add silent exceptions for any tokenizer warnings to prevent startup issues
+    try:
+        tokenizer = AutoTokenizer.from_pretrained(model_id, local_files_only=local, legacy=True)
+    except Exception as e:
+        st.warning(f"Tokenizer loaded with warnings (non-blocking): {e}")
+        # Fall back without legacy option if not supported
+        tokenizer = AutoTokenizer.from_pretrained(model_id, local_files_only=local)
+    
     model = AutoModelForSeq2SeqLM.from_pretrained(model_id, local_files_only=local)
     return tokenizer, model
 
@@ -217,9 +228,6 @@ def generate_and_display(prompt_text, out_container):
                 out_container.error(f"Generation failed: {e}")
 
 # Left column: sample prompts (placed before the input box so they can set the session value)
-
-import random
-import urllib.parse
 
 # Defensive session state defaults to avoid first-run layout variation
 if 'last_prompt' not in st.session_state:
