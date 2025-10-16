@@ -36,3 +36,6 @@ hf_space_demo/
 
 
 
+
+# Streamlit secrets
+app/.streamlit/secrets.toml
