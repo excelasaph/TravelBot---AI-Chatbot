@@ -1,0 +1,12 @@
+transformers>=4.0.0
+datasets
+evaluate
+torch
+sentencepiece
+streamlit
+nltk
+wordcloud
+matplotlib
+rouge-score
+bert-score
+safetensors

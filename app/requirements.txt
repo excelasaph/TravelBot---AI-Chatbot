@@ -1,0 +1,9 @@
+<<<<<<< HEAD
+=======
+>>>>>>> aff562f (Add Streamlit demo for TravelBot)
+streamlit
+transformers
+torch
+huggingface-hub
+altair
+pandas

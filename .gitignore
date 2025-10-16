@@ -1,0 +1,57 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Python virtual environments
+.venv/
+venv/
+env/
+
+# Notebook checkpoints (keep notebooks tracked)
+.ipynb_checkpoints/
+
+# Model artifacts and weights (do NOT commit large model files)
+fine_tuned_t5_travel_geography/
+*.safetensors
+*.pt
+*.ckpt
+*.bin
+
+# Large data, metrics and logs not required for runtime
+# data/
+# metrics/
+# logs/
+# events.out.*
+
+# Images / figures (move to docs or keep small ones only)
+# images/
+
+# Streamlit runtime history files (do not track runtime files)
+hf_space_demo/chat_history.json
+# app/chat_history.json
+# chat_history.json
+
+# IDE/editor directories
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Archive/legacy folders
+hf_space_demo/
+# Translations
+*.mo
+*.pot
+
+# pyenv
+.python-version
+
+
+
+
+
+
+
