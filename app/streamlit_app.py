@@ -24,7 +24,6 @@ num_beams = st.sidebar.slider("Beams (creativity vs accuracy)", 1, 8, 4)
 max_length = st.sidebar.slider("Max length", 50, 512, 180)
 # OOD (out-of-domain) length threshold for a simple heuristic
 ood_threshold = st.sidebar.slider("OOD length threshold (words)", 5, 60, 20)
-allow_download = st.sidebar.checkbox("Allow HF Hub download (Space will need public model)", True)
 
 @st.cache_resource
 def load_model(model_id, local=False):
@@ -80,7 +79,9 @@ def safe_rerun():
 
 if MODEL_ID and MODEL_ID != "<YOUR_USERNAME>/<YOUR_MODEL_REPO>":
     try:
-        tokenizer, model = load_model(MODEL_ID, local=not allow_download)
+        # Deploying with Streamlit: prefer local-only model loading. Remove
+        # Hub-download toggle to avoid unexpected network downloads at runtime.
+        tokenizer, model = load_model(MODEL_ID, local=True)
         st.success(f"Loaded model {MODEL_ID}")
     except Exception as e:
         st.error(f"Could not load model {MODEL_ID}: {e}")
@@ -100,7 +101,11 @@ def generate_and_display(prompt_text, out_container):
     """
     st.session_state['last_prompt'] = prompt_text
     out_container.empty()
-    with out_container.container():
+    # Write all generation UI into the reserved placeholder directly. Using
+    # the existing container as the context (instead of creating a nested
+    # container) avoids transient layout reflows that can produce the
+    # faint duplicated widgets observed on first-generation.
+    with out_container:
         with st.spinner("Generating..."):
             try:
                 # Append the user's message to persistent chat history
