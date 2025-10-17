@@ -8,5 +8,15 @@
     "role": "bot",
     "content": "Altitude sickness in Peru can be caused by a combination of factors, including the lack of sleep, poor nutrition, and high altitude. To avoid altitude sickness, it is important to take precautions such as taking a warm bath or shower before going to bed.",
     "time": "10:18 PM"
+  },
+  {
+    "role": "user",
+    "content": "How do I get from Paris to Barcelona by train?",
+    "time": "11:31 PM"
+  },
+  {
+    "role": "bot",
+    "content": "I can only answer questions about travel and geography. Please ask a question related to that topic.",
+    "time": "11:31 PM"
   }
 ]
