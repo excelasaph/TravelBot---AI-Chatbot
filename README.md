@@ -8,7 +8,8 @@
 
 TravelBot is a domain-specific chatbot fine-tuned for travel and geography question-answering. This project demonstrates the application of transformer models for creating a specialized AI assistant capable of providing accurate information about travel destinations, geographical features, cultural information, and other travel-related topics.
 
-**[Live Demo](https://travelaibot.streamlit.app/) | [Video Demonstration](https://youtu.be/FuIBQ21aULw) | [FAST API](https://travelbot-ai-chatbot.onrender.com/docs)**
+### Demo Video: 
+**YouTube Link**: [https://youtu.be/FuIBQ21aULw](https://youtu.be/FuIBQ21aULw)
 
 ### Features
 - **Domain-Specific Knowledge**: Specialized in travel and geography topics
