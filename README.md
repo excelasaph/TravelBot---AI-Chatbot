@@ -126,3 +126,16 @@ Extensive experimentation was conducted to optimize model performance:
 The project is deployed using:
 - **Streamlit Cloud**: Hosts the user interface at [travelaibot.streamlit.app](https://travelaibot.streamlit.app)
 - **Render**: Hosts the FastAPI backend at [travelbot-ai-chatbot.onrender.com](https://travelbot-ai-chatbot.onrender.com)
+
+## Screenshots
+
+Below are screenshots of the TravelBot application interface:
+
+### Main Application Interface
+![TravelBot Application Interface](../images/TravelBot%20-%20app%201.png)
+
+### User Interaction Example
+![TravelBot User Interaction](../images/TravelBot%20-%20app%202.png)
+
+### Advanced Features
+![TravelBot Advanced Features](../images/TravelBot%20-%20app%203.png)
