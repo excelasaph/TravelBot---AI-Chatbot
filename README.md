@@ -138,5 +138,5 @@ Below are screenshots of the TravelBot application interface:
 ### User Interaction Example
 ![TravelBot User Interaction](./images/TravelBot%20-%20app%202.png)
 
-### Advanced Features
+### Out-of-Domain Check
 ![TravelBot Advanced Features](./images/TravelBot%20-%20app%203.png)
