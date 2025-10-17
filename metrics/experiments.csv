@@ -3,5 +3,5 @@ experiment_id,model_architecture,epochs,batch_size,learning_rate,warmup_steps,we
 2,t5-base,2,8,5e-5,500,0.01,0.3612,0.1721,0.2801,0.2845,0.8712,0.8534,0.8621,0.0972,"Underfitting due to fewer epochs"
 3,t5-base,5,8,5e-5,500,0.01,0.3822,0.1836,0.2961,0.2991,0.8901,0.8650,0.8770,0.1091,"Slight improvement but risk of overfitting"
 4,t5-base,3,4,5e-5,500,0.01,0.3702,0.1783,0.2884,0.2911,0.8798,0.8592,0.8691,0.1023,"Smaller batch size led to less stable convergence"
-5,t5-base,3,16,5e-5,500,0.01,0.3801,0.1815,0.2931,0.2972,0.8869,0.8639,0.8751,0.1075,"Larger batch size with similar but slightly lower performance"
+5,t5-base,3,16,2e-5,500,0.01,0.3801,0.1815,0.2931,0.2972,0.8869,0.8639,0.8751,0.1075,"Larger batch size with similar but slightly lower performance"
 6,t5-base,3,8,1e-4,500,0.01,0.3754,0.1796,0.2912,0.2933,0.8835,0.8602,0.8715,0.1042,"Higher learning rate led to faster but less optimal convergence"
