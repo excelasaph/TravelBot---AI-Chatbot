@@ -5,13 +5,17 @@ This folder contains demo resources for the TravelBot project.
 ## Video Demonstration
 
 A video demonstration of the TravelBot project is available on YouTube:
-[TravelBot Demo Video](https://www.youtube.com/your-video-link-here)
+[YouTube Demo Video](https://youtu.be/FuIBQ21aULw)
 
 ## Demo Instructions
 
 To try the TravelBot yourself:
 
-1. Visit the deployed application at: [TravelBot App](https://your-render-deployment-url.onrender.com)
+1. Visit the deployed Streamlit application at: [TravelBot App](https://travelaibot.streamlit.app/)
+
+   And
+
+1. Visit the deployed FAST API at: [FAST API](https://travelbot-ai-chatbot.onrender.com/docs)
    
    OR
 
@@ -19,4 +23,13 @@ To try the TravelBot yourself:
 
 ## Screenshots
 
-Screenshots of the application will be added here.
+Below are screenshots of the TravelBot application interface:
+
+### Main Application Interface
+![TravelBot Application Interface](../images/TravelBot%20-%20app%201.png)
+
+### User Interaction Example
+![TravelBot User Interaction](../images/TravelBot%20-%20app%202.png)
+
+### Advanced Features
+![TravelBot Advanced Features](../images/TravelBot%20-%20app%203.png)

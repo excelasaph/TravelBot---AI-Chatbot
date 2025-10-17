@@ -21,11 +21,9 @@ from pydantic import BaseModel, Field
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-# Transformers imports are lazy to provide clearer error messages
 try:
     from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 except Exception as e:
-    # We'll raise a clearer error at request time if transformers isn't available
     AutoTokenizer = None
     AutoModelForSeq2SeqLM = None
 
@@ -33,7 +31,6 @@ logger = logging.getLogger("uvicorn.error")
 
 app = FastAPI(title="TravelBot API", version="0.1")
 
-# Allow calls from local Streamlit dev server and typical hosts. Adjust as needed.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost", "http://localhost:8501", "http://127.0.0.1", "http://127.0.0.1:8501", "*"],
@@ -42,11 +39,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Config: local model path (folder should exist in repo root)
 REPO_ROOT = os.path.abspath(os.path.dirname(__file__))
 LOCAL_MODEL_FOLDER = os.path.join(REPO_ROOT, "fine_tuned_t5_travel_geography")
 
-# Lazy-loaded model/tokenizer
 _model = None
 _tokenizer = None
 _model_source = None
@@ -78,15 +73,12 @@ def load_model(local_folder=LOCAL_MODEL_FOLDER):
 
     _ensure_transformers_available()
 
-    # Prefer a local folder if available
     try:
         if os.path.isdir(local_folder):
             logger.info("Loading model from local folder: %s", local_folder)
             try:
-                # Try with legacy=True to silence 'add_prefix_space' warning
                 tokenizer = AutoTokenizer.from_pretrained(local_folder, local_files_only=True, legacy=True)
             except Exception:
-                # Fall back to default loading if legacy flag not supported
                 tokenizer = AutoTokenizer.from_pretrained(local_folder, local_files_only=True)
                 
             model = AutoModelForSeq2SeqLM.from_pretrained(local_folder, local_files_only=True)
@@ -95,9 +87,8 @@ def load_model(local_folder=LOCAL_MODEL_FOLDER):
     except Exception as e:
         logger.warning("Local folder load failed: %s", e)
 
-    # Fallback: try to load by repo id from transformers config (if installed/cached)
     try:
-        # Try to load using the folder name as repo id (if user configured to pull from hub)
+        # Load using the folder name as repo id 
         repo_id = os.path.basename(local_folder)
         logger.info("Attempting to load model via repo id: %s", repo_id)
         try:
@@ -111,7 +102,6 @@ def load_model(local_folder=LOCAL_MODEL_FOLDER):
     except Exception as e:
         logger.warning("Hub-cache load failed: %s", e)
 
-    # Last resort: allow network download if environment has credentials/permissions
     try:
         repo_id = os.path.basename(local_folder)
         try:
@@ -129,11 +119,9 @@ def load_model(local_folder=LOCAL_MODEL_FOLDER):
 
 @app.on_event("startup")
 async def startup_event():
-    # Log the port we're using
     port = os.environ.get("PORT", "8000")
     logger.info(f"Starting app on port {port}")
-    
-    # Attempt to warm-load the model if small environment permits; swallow errors to keep server up
+
     try:
         load_model()
         logger.info("Model loaded at startup: %s", _model_source)
@@ -157,7 +145,6 @@ async def generate(req: GenerateRequest):
         raise HTTPException(status_code=500, detail=f"Model load failed: {e}")
 
     try:
-        # Prepare prompt formatting consistent with T5 training (the app used a 'question: ... answer:' prefix)
         prompt = req.inputs if req.inputs.lower().startswith('question:') else f"question: {req.inputs} answer:"
         inputs = tokenizer(prompt, return_tensors='pt', truncation=True, padding=True)
         gen_kwargs = {
@@ -171,7 +158,7 @@ async def generate(req: GenerateRequest):
         out = model.generate(inputs['input_ids'], attention_mask=inputs['attention_mask'], **gen_kwargs)
         text = tokenizer.decode(out[0], skip_special_tokens=True)
 
-        # Simple out-of-domain heuristic (same as Streamlit app)
+        # Simple out-of-domain heuristic (same as Streamlit)
         if len(text.split()) < 5:
             final_text = "I can only answer questions about travel and geography. Please ask a question related to that topic."
         else:

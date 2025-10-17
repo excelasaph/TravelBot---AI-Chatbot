@@ -5,12 +5,9 @@ import urllib.parse
 import random
 from datetime import datetime
 try:
-    # Preferred import when available
     from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
     _TRANSFORMERS_AUTO = True
 except Exception:
-    # Older/newer transformers builds may not expose Auto* names in the same place.
-    # Fall back to T5-specific classes which are appropriate for a fine-tuned T5 model.
     from transformers import T5Tokenizer as AutoTokenizer, T5ForConditionalGeneration as AutoModelForSeq2SeqLM
     _TRANSFORMERS_AUTO = False
 
@@ -18,8 +15,6 @@ st.set_page_config(page_title="TravelBot Demo", page_icon=":airplane:", layout="
 
 st.title("TravelBot: Travel & Cultural Routes — Demo")
 
-# Remote model server (recommended for Spaces). If provided in Secrets as MODEL_SERVER_URL,
-# the app will call the external server and avoid loading large model files inside the Space.
 MODEL_SERVER_URL = None
 try:
     MODEL_SERVER_URL = st.secrets.get("MODEL_SERVER_URL")
@@ -28,25 +23,19 @@ except Exception:
 
 MODEL_ID = st.sidebar.text_input("Hugging Face model repo (user/model)", value="excelasaph/fine_tuned_t5_travel_geography")
 use_recommended = st.sidebar.checkbox("Use recommended generation settings", True)
-# Add a beams control (safe, non-disruptive)
+# beams control
 num_beams = st.sidebar.slider("Beams (creativity vs accuracy)", 1, 8, 4)
-# Map max tokens to model max_length
+# model max_length
 max_length = st.sidebar.slider("Max length", 50, 512, 180)
-# OOD (out-of-domain) length threshold for a simple heuristic
+# OOD (out-of-domain)
 ood_threshold = st.sidebar.slider("OOD length threshold (words)", 5, 60, 20)
 
 @st.cache_resource
 def load_model(model_id, local=False):
-    # Use the tokenizer/model classes imported above. If transformers exposes Auto* names
-    # this will behave as before; otherwise we use the T5-specific classes aliased above.
-    
-    # Add legacy=True to address the add_prefix_space warning for T5 tokenizer
-    # and add silent exceptions for any tokenizer warnings to prevent startup issues
     try:
         tokenizer = AutoTokenizer.from_pretrained(model_id, local_files_only=local, legacy=True)
     except Exception as e:
         st.warning(f"Tokenizer loaded with warnings (non-blocking): {e}")
-        # Fall back without legacy option if not supported
         tokenizer = AutoTokenizer.from_pretrained(model_id, local_files_only=local)
     
     model = AutoModelForSeq2SeqLM.from_pretrained(model_id, local_files_only=local)
@@ -60,7 +49,7 @@ def generate_via_server(prompt, max_length=256, num_beams=1):
         raise RuntimeError("MODEL_SERVER_URL is not configured")
     payload = {"inputs": prompt, "max_length": max_length, "num_beams": num_beams}
     headers = {}
-    # Optional: support an API key sent via secrets
+
     try:
         api_key = st.secrets.get("MODEL_SERVER_API_KEY")
     except Exception:
@@ -72,8 +61,6 @@ def generate_via_server(prompt, max_length=256, num_beams=1):
     data = r.json()
     return data.get("generated_text", "")
 
-
-### Chat history helpers (centralized, safe)
 CHAT_FILE = os.path.join(os.path.dirname(__file__), 'chat_history.json')
 
 def load_chat_history():
@@ -107,19 +94,13 @@ def delete_chat_history():
 def safe_rerun():
     """Attempt to rerun the Streamlit script; fall back safely if unavailable."""
     try:
-        # preferred, but may not exist in some Streamlit builds
         return st.experimental_rerun()
     except Exception:
-        # Toggle a dummy session_state key so the page re-evaluates on next event,
-        # then stop this run. This avoids raising AttributeError on older/new
-        # Streamlit versions that don't expose experimental_rerun.
         st.session_state['_need_rerun'] = not st.session_state.get('_need_rerun', False)
         return st.stop()
 
 if MODEL_ID and MODEL_ID != "<YOUR_USERNAME>/<YOUR_MODEL_REPO>":
     try:
-        # Deploying with Streamlit: prefer local-only model loading. Remove
-        # Hub-download toggle to avoid unexpected network downloads at runtime.
         tokenizer, model = load_model(MODEL_ID, local=True)
         st.success(f"Loaded model {MODEL_ID}")
     except Exception as e:
@@ -131,7 +112,6 @@ else:
 
 col1, col2 = st.columns([2,1])
 
-# Shared generator helper used by the Generate button and example buttons
 def generate_and_display(prompt_text, out_container):
     """Generate into the provided output container to keep the widget tree stable.
 
@@ -140,14 +120,10 @@ def generate_and_display(prompt_text, out_container):
     """
     st.session_state['last_prompt'] = prompt_text
     out_container.empty()
-    # Write all generation UI into the reserved placeholder directly. Using
-    # the existing container as the context (instead of creating a nested
-    # container) avoids transient layout reflows that can produce the
-    # faint duplicated widgets observed on first-generation.
     with out_container:
         with st.spinner("Generating..."):
             try:
-                # Append the user's message to persistent chat history
+                # Load persistent chat history
                 try:
                     chat_file = os.path.join(os.path.dirname(__file__), 'chat_history.json')
                     if os.path.exists(chat_file):
@@ -163,7 +139,6 @@ def generate_and_display(prompt_text, out_container):
                     with open(chat_file, 'w', encoding='utf-8') as f:
                         json.dump(hist, f, ensure_ascii=False, indent=2)
                 except Exception:
-                    # ignore persistence failures
                     pass
                 gen_kwargs = {
                     'num_beams': num_beams if not use_recommended else 4,
@@ -190,7 +165,6 @@ def generate_and_display(prompt_text, out_container):
                 else:
                     out_container.write(text)
                     final_text = text
-                # Append assistant response to persistent chat history
                 try:
                     try:
                         if 'hist' not in locals():
@@ -208,10 +182,6 @@ def generate_and_display(prompt_text, out_container):
                         json.dump(hist, f, ensure_ascii=False, indent=2)
                 except Exception:
                     pass
-                # Render a high-quality inline SVG download icon as an anchor that
-                # triggers a file download via a data URI. Place it directly under
-                # the response and *before* the separator so the bar remains the
-                # bottom boundary of the response block.
                 try:
                     encoded = urllib.parse.quote(final_text)
                     svg_icon = (
@@ -221,24 +191,17 @@ def generate_and_display(prompt_text, out_container):
                     html = f"<a download='travelbot_response.txt' href='data:text/plain;charset=utf-8,{encoded}' title='Download response (txt)' style='text-decoration:none;color:inherit'>{svg_icon}</a>"
                     out_container.markdown(html, unsafe_allow_html=True)
                 except Exception:
-                    # Fallback to a simple download_button if encoding or HTML injection fails
                     out_container.download_button("Download", data=final_text, file_name="travelbot_response.txt", help="Download response (txt)")
                 out_container.markdown("---")
             except Exception as e:
                 out_container.error(f"Generation failed: {e}")
 
-# Left column: sample prompts (placed before the input box so they can set the session value)
-
-# Defensive session state defaults to avoid first-run layout variation
 if 'last_prompt' not in st.session_state:
     st.session_state['last_prompt'] = ''
 if 'do_generate_now' not in st.session_state:
     st.session_state['do_generate_now'] = False
 
 with col1:
-    # Reserve a stable container for response output. Always create it before
-    # any conditional widgets so the widget ordering doesn't change between
-    # reruns (this prevents the translucent duplication on first generation).
     response_placeholder = st.container()
     # Large pool of prompts
     prompt_pool = [
@@ -274,7 +237,6 @@ with col1:
                 st.session_state['prompt_input'] = ex
                 st.session_state['do_generate_now'] = True
 
-    # Session-keyed text area uses the pre-set prompt_input when present
     if 'prompt_input' not in st.session_state:
         st.session_state['prompt_input'] = (
             "Imagine you are a tourist planning a trip to Europe and you're interested in exploring the cultural routes mentioned in the text. "
@@ -282,14 +244,9 @@ with col1:
         )
     prompt = st.text_area("Enter a question / prompt", height=220, key='prompt_input')
 
-    # Always-visible Generate button (separate from the helper function)
     if st.button("Generate"):
-        # Use the current prompt value from the widget; do NOT assign back to
-        # session_state['prompt_input'] (Streamlit forbids modifying a key
-        # after the widget with that key has been instantiated).
         generate_and_display(prompt, response_placeholder)
 
-    # If an example set the auto-generate flag earlier in this run, call generator now
     if st.session_state.pop('do_generate_now', False):
         generate_and_display(st.session_state.get('prompt_input', ''), response_placeholder)
 
@@ -299,13 +256,11 @@ with col2:
     st.write("Max length:", max_length)
     st.write("Model repo:", MODEL_ID)
 
-    # Chat History viewer (read-only, non-invasive)
     with st.expander("Chat History"):
         hist = load_chat_history()
         if not hist:
             st.info("No chat history saved yet.")
         else:
-            # Render a compact table-like view
             for i, entry in enumerate(hist[::-1]):
                 # recent-first
                 role = entry.get('role', 'user')
@@ -319,7 +274,6 @@ with col2:
         col_del1, col_del2 = st.columns([3,1])
         with col_del1:
             if st.button('Delete chat history', key='delete_chat_history_btn'):
-                # perform deletion immediately
                 delete_chat_history()
                 st.session_state['chat_deleted'] = True
                 st.success('Chat history deleted')

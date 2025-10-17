@@ -8,7 +8,7 @@ Note: run `huggingface-cli login` in PowerShell first to authenticate.
 """
 from huggingface_hub import upload_folder
 
-REPO_ID = "excelasaph/fine_tuned_t5_travel_geography"  # e.g. excelasaph/fine_tuned_t5_travel_geography
+REPO_ID = "excelasaph/fine_tuned_t5_travel_geography"
 LOCAL_FOLDER = r"c:\Users\Excel\Desktop\Github Projects\TravelBot---AI-Chatbot\fine_tuned_t5_travel_geography"
 
 if REPO_ID.startswith("<"):

@@ -3,8 +3,5 @@ transformers>=4.30
 requests
 pandas
 sentencepiece
-# The following are heavy/optional. Many cloud deploys struggle installing torch from source.
-# If you plan to run the model locally in the container, include torch; otherwise prefer
-# using the Hugging Face Inference API or a smaller runtime.
 torch
 # safetensors

@@ -40,18 +40,3 @@ pip install -r requirements.txt
 ```powershell
 streamlit run streamlit_app.py
 ```
-
-Model hosting options
-
-- Local bundle (current default): the app will attempt to load a local model folder. Place `fine_tuned_t5_travel_geography/` next to this `app/` folder before deploying if you want local-only inference.
-- Hugging Face Hub download: to download from the Hub at runtime you must set an HF token in the host environment and adjust `load_model(..., local=False)` or implement an auto-fallback.
-- Inference API / Endpoint: recommended for light-weight deploys. Store token in `st.secrets` or environment variables and call the API from the app.
-
-Deployment notes
-
-- Streamlit Community Cloud / Streamlit Deploy will use `requirements.txt` and run the app without a Dockerfile. If deploying with Render or Docker, ensure `requirements.txt` is installed during build and that model weights are available in the runtime or fetched securely.
-- Avoid embedding secrets or tokens in the repo. Use platform secrets/ENV variables.
-
-If you'd like, I can:
-- Add an Inference-API fallback that uses `st.secrets["HF_TOKEN"]` when present, or
-- Add a startup check that reports whether the local model folder is present and provides guidance.

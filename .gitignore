@@ -1,4 +1,3 @@
-# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
@@ -11,12 +10,8 @@ env/
 # Notebook checkpoints 
 .ipynb_checkpoints/
 
-# Model artifacts and weights 
-# fine_tuned_t5_travel_geography/
+# Model artifact
 *.safetensors
-# *.pt
-# *.ckpt
-# *.bin
 
 # IDE/editor directories
 .vscode/
