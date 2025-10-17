@@ -38,7 +38,7 @@ TravelBot---AI-Chatbot/
 └── README.md                     
 ```
 
-## Technical Implementation
+## Implementation
 
 ### Model Architecture
 The chatbot is built on a fine-tuned T5 (Text-to-Text Transfer Transformer) model from Hugging Face. After exploring various models, T5 was selected for its:
@@ -133,10 +133,10 @@ The project is deployed using:
 Below are screenshots of the TravelBot application interface:
 
 ### Main Application Interface
-![TravelBot Application Interface](../images/TravelBot%20-%20app%201.png)
+![TravelBot Application Interface](./images/TravelBot%20-%20app%201.png)
 
 ### User Interaction Example
-![TravelBot User Interaction](../images/TravelBot%20-%20app%202.png)
+![TravelBot User Interaction](./images/TravelBot%20-%20app%202.png)
 
 ### Advanced Features
-![TravelBot Advanced Features](../images/TravelBot%20-%20app%203.png)
+![TravelBot Advanced Features](./images/TravelBot%20-%20app%203.png)
